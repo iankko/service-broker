@@ -7,12 +7,33 @@ Implementation of the [OpenServiceBrokerAPI v2.13](https://github.com/openservic
 
 ### Deploying the broker via OpenShift S2I
 
-#### Deploying via OpenShift WebConsole
-
+*Prerequisites*:
 * Clone the [service-broker](https://github.com/iankko/service-broker) repository:
-`$ git clone https://github.com/iankko/service-broker`
+```
+$ git clone https://github.com/iankko/service-broker
+```
 * Create dedicated OpenShift project:
-`$ oc new-project rh-sso-broker`
+```
+$ oc new-project rh-sso-broker
+```
+
+#### Using oc CLI tools to deploy the broker
+
+* Process and deploy the provided `templates/rh-sso-broker-s2i.yaml` S2I template using the default values
+```
+$ cd templates/
+```
+```
+$ oc process -f rh-sso-broker-s2i.yaml | oc create -f -
+imagestream "rh-sso-broker" created
+buildconfig "rh-sso-broker" created
+deploymentconfig "rh-sso-broker" created
+service "rh-sso-broker" created
+clusterservicebroker "rh-sso-broker" created
+```
+
+#### Using the OpenShift Web Console to deploy the broker
+
 * In the OpenShift web console, select the `rh-sso-broker` project created in previous step.
 * Click `Add to Project`, then select `Import YAML/JSON` option. Click `Browse` button, and point the `File Upload` selection dialog to the location of the `rh-sso-broker-s2i.yaml` application template.
 * Click the `Create` button. Ensure the `Process the template` checkbox is checked in, click `Continue` button.
@@ -32,17 +53,16 @@ is displayed.
 ## Verifying proper work of broker service catalog endpoint
 
 * Verify the `rh-sso-broker` Clusterservicebroker object exists in the cluster:
-`
+```
 $ oc get clusterservicebroker
 NAME                             KIND
 ansible-service-broker           ClusterServiceBroker.v1beta1.servicecatalog.k8s.io
 rh-sso-broker                    ClusterServiceBroker.v1beta1.servicecatalog.k8s.io
 template-service-broker          ClusterServiceBroker.v1beta1.servicecatalog.k8s.io
-testing-ansible-service-broker   ClusterServiceBroker.v1beta1.servicecatalog.k8s.io
-`
+```
 
 * Verify the catalog entries can be successfully retrieved from the broker:
-`
+```
 $ oc get clusterservicebroker rh-sso-broker -o yaml
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ClusterServiceBroker
@@ -71,4 +91,4 @@ status:
     type: Ready
   lastCatalogRetrievalTime: 2018-02-21T18:28:06Z
   reconciledGeneration: 1
-`
+```
